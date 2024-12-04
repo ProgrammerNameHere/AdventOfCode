@@ -9,6 +9,11 @@ wires ={
 }
 for line in puzzle_input:
     line = line.split()
+    input1 = ''
+    input2 = ''
+    gate = ''
+    target = ''
+    
     target = line[-1]
     #check if the target wire is in the dictionary already
     if wires.get(target, '') == '':
@@ -18,11 +23,9 @@ for line in puzzle_input:
     if line[1] == '->':
         #direct assignment from a different wire
         wires.get(line[0],line[0])
-        
+
         wires[target] = wires[line[0]]
         #direct assignment from a value
     #differentiate the gates
 
 print(wires['a'])
-
-test_list = [0]
