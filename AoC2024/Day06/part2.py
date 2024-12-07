@@ -19,51 +19,51 @@ spots_visited = set((guard, '.'),)
 possible_obstructions = set()
 
 # check if the guard is about to leave the room
-def is_leaving_the_room(pos):
+def is_leaving_the_room(pos, temp_direction=direction):
     x, y = pos
-    if direction == '^' and y == 0:
+    if temp_direction == '^' and y == 0:
         return True
-    elif direction == '>' and x == width_of_room - 1:
+    elif temp_direction == '>' and x == width_of_room - 1:
         return True
-    elif direction == 'v' and y == height_of_room -1:
+    elif temp_direction == 'v' and y == height_of_room -1:
         return True
-    elif direction == '<' and x == 0:
+    elif temp_direction == '<' and x == 0:
         return True
     return False
 
 # change the direction of the guard
-def change_direction():
-    if direction == '^':
+def change_direction(temp_direction=direction):
+    if temp_direction == '^':
         return '>'
-    elif direction == '>':
+    elif temp_direction == '>':
         return 'v'
-    elif direction == 'v':
+    elif temp_direction == 'v':
         return '<'
-    elif direction == '<':
+    elif temp_direction == '<':
         return '^'
 
 # take a step in the current direction
-def take_step(pos):
+def take_step(pos, temp_direction=direction):
     x, y = pos
-    if direction == '^':
+    if temp_direction == '^':
         return (x, y - 1)
-    elif direction == '>':
+    elif temp_direction == '>':
         return (x + 1, y)
-    elif direction == 'v':
+    elif temp_direction == 'v':
         return (x, y + 1)
-    elif direction == '<':
+    elif temp_direction == '<':
         return (x - 1, y)
     
 # check if the guard is blocked
-def is_blocked(pos):
+def is_blocked(pos, temp_direction=direction):
     x, y = pos
-    if direction == '^' and puzzle_input[y - 1][x] == '#':
+    if temp_direction == '^' and puzzle_input[y - 1][x] == '#':
         return True
-    elif direction == '>' and puzzle_input[y][x + 1] == '#':
+    elif temp_direction == '>' and puzzle_input[y][x + 1] == '#':
         return True
-    elif direction == 'v' and puzzle_input[y + 1][x] == '#':
+    elif temp_direction == 'v' and puzzle_input[y + 1][x] == '#':
         return True
-    elif direction == '<' and puzzle_input[y][x - 1] == '#':
+    elif temp_direction == '<' and puzzle_input[y][x - 1] == '#':
         return True
     return False
 
@@ -71,8 +71,9 @@ def is_blocked(pos):
 
 # check if an obstruction put in front of the guard right now would create a loop
 def can_loop(guard):
-    temp_direction = change_direction()
-    temp_guard_with_direction = (guard, temp_direction)
+
+    temp_guard = take_step(guard, change_direction())
+    temp_guard_with_direction = (guard, change_direction())
     #print({temp_guard_with_direction,})
     if  {temp_guard_with_direction,} <= spots_visited and take_step(guard) != guard_start:
         return True
