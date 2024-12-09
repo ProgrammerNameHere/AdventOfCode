@@ -1,4 +1,6 @@
-puzzle_file = open('input.txt', 'r')
+import time
+
+puzzle_file = open('test_input.txt', 'r')
 puzzle_input = puzzle_file.read().splitlines()
 #print(puzzle_input)
 puzzle_file.close()
@@ -9,73 +11,71 @@ height_of_room = len(puzzle_input)
 position_of_guard = ''.join(puzzle_input).find('^')
 x_guard = position_of_guard % width_of_room
 y_guard = position_of_guard // width_of_room
-direction = '^'
-puzzle_input[y_guard] = puzzle_input[y_guard].replace('^','.')
+direction = puzzle_input[y_guard][x_guard]
+guard_start = (x_guard, y_guard)
 guard = (x_guard, y_guard)
-guard_start = guard
 
-# initialize the spots visited as an empty set
-spots_visited = set((guard, '.'),)
+# initialize the spots visited as an empty set and
+spots_visited = set()
+spots_visited_with_direction = set((guard, '.'),)
 possible_obstructions = set()
 
 # check if the guard is about to leave the room
-def is_leaving_the_room(pos, temp_direction=direction):
+def is_leaving_the_room(pos, facing_direction):
     x, y = pos
-    if temp_direction == '^' and y == 0:
+    if facing_direction == '^' and y == 0:
         return True
-    elif temp_direction == '>' and x == width_of_room - 1:
+    elif facing_direction == '>' and x == width_of_room - 1:
         return True
-    elif temp_direction == 'v' and y == height_of_room -1:
+    elif facing_direction == 'v' and y == height_of_room -1:
         return True
-    elif temp_direction == '<' and x == 0:
+    elif facing_direction == '<' and x == 0:
         return True
     return False
 
 # change the direction of the guard
-def change_direction(temp_direction=direction):
-    if temp_direction == '^':
+def change_direction(current_direction):
+    if current_direction == '^':
         return '>'
-    elif temp_direction == '>':
+    elif current_direction == '>':
         return 'v'
-    elif temp_direction == 'v':
+    elif current_direction == 'v':
         return '<'
-    elif temp_direction == '<':
+    elif current_direction == '<':
         return '^'
 
 # take a step in the current direction
-def take_step(pos, temp_direction=direction):
+def take_step(pos, step_direction):
     x, y = pos
-    if temp_direction == '^':
+    if step_direction == '^':
         return (x, y - 1)
-    elif temp_direction == '>':
+    elif step_direction == '>':
         return (x + 1, y)
-    elif temp_direction == 'v':
+    elif step_direction == 'v':
         return (x, y + 1)
-    elif temp_direction == '<':
+    elif step_direction == '<':
         return (x - 1, y)
     
 # check if the guard is blocked
-def is_blocked(pos, temp_direction=direction):
+def is_blocked(pos, block_direction):
     x, y = pos
-    if temp_direction == '^' and puzzle_input[y - 1][x] == '#':
+    if block_direction == '^' and puzzle_input[y - 1][x] == '#':
         return True
-    elif temp_direction == '>' and puzzle_input[y][x + 1] == '#':
+    elif block_direction == '>' and puzzle_input[y][x + 1] == '#':
         return True
-    elif temp_direction == 'v' and puzzle_input[y + 1][x] == '#':
+    elif block_direction == 'v' and puzzle_input[y + 1][x] == '#':
         return True
-    elif temp_direction == '<' and puzzle_input[y][x - 1] == '#':
+    elif block_direction == '<' and puzzle_input[y][x - 1] == '#':
         return True
     return False
 
 
 
 # check if an obstruction put in front of the guard right now would create a loop
-def can_loop(guard):
-
-    temp_guard = take_step(guard, change_direction())
-    temp_guard_with_direction = (guard, change_direction())
+def can_loop(guard, loop_direction):
+    temp_direction = change_direction(loop_direction)
     #print({temp_guard_with_direction,})
-    if  {temp_guard_with_direction,} <= spots_visited and take_step(guard) != guard_start:
+    if  {(guard, temp_direction),} <= spots_visited_with_direction or take_step(guard, loop_direction) == guard_start:
         return True
     return False    
 
@@ -85,21 +85,34 @@ def can_loop(guard):
 
 while True:
     # add the current position to the spots visited
-    #print(guard)
-    #print(direction)
-    spots_visited.add((guard,direction),)
-    if is_leaving_the_room(guard):
+    # print(guard)
+    # print(direction)
+    # x_current, y_current = guard
+    # vision_range = 5
+    # for y in range(y_current - vision_range//2, y_current + vision_range//2 + 1):
+    #     print(puzzle_input[y][x_current - vision_range//2:x_current + vision_range//2 + 1])
+    # time.sleep(.2)
+    spots_visited.add((guard),)
+    spots_visited_with_direction.add((guard,direction),)
+    if is_leaving_the_room(guard, direction):
         break
     else:
-        if is_blocked(guard):
-            direction = change_direction()
+        if is_blocked(guard, direction):
+            puzzle_input[guard[1]][guard[0]].replace(direction, change_direction(direction))
+            direction = change_direction(direction)
+            # print('Obstacle Detected')
+
             continue
         else:
-            if can_loop(guard):
-                temp_guard = take_step(guard)
-                temp_guard_with_direction = (temp_guard, direction)
-                possible_obstructions.add(temp_guard_with_direction)
-            guard = take_step(guard)
+            if can_loop(guard, direction):
+                # print('Loop Detected')
+                temp_guard = take_step(guard, direction)
+                possible_obstructions.add(temp_guard,)
+            # print('Stepping Forward')
+            puzzle_input[guard[1]][guard[0]].replace(direction, '.')
+            guard = take_step(guard,direction)
+            puzzle_input[guard[1]][guard[0]].replace('.', direction)
+            
             continue
 
 print(f'The Guard visited {len(spots_visited)} spots in the room.')
