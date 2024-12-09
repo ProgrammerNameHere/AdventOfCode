@@ -88,7 +88,7 @@ while True:
     # print(guard)
     # print(direction)
     # x_current, y_current = guard
-    # vision_range = 5
+    # vision_range = 1
     # for y in range(y_current - vision_range//2, y_current + vision_range//2 + 1):
     #     print(puzzle_input[y][x_current - vision_range//2:x_current + vision_range//2 + 1])
     # time.sleep(.2)
@@ -98,7 +98,6 @@ while True:
         break
     else:
         if is_blocked(guard, direction):
-            puzzle_input[guard[1]][guard[0]].replace(direction, change_direction(direction))
             direction = change_direction(direction)
             # print('Obstacle Detected')
 
@@ -109,15 +108,14 @@ while True:
                 temp_guard = take_step(guard, direction)
                 possible_obstructions.add(temp_guard,)
             # print('Stepping Forward')
-            puzzle_input[guard[1]][guard[0]].replace(direction, '.')
             guard = take_step(guard,direction)
-            puzzle_input[guard[1]][guard[0]].replace('.', direction)
             
             continue
 
 print(f'The Guard visited {len(spots_visited)} spots in the room.')
 print(f'There are {len(possible_obstructions)} spots \
 where i can put an obstruction to create a loop.')
+print(possible_obstructions)
         
 # wenn vor mir nicht blockiert ist, und ich schon mal hier war mit der richtung rechts von mir, 
 # dann packe die position vor mir in die liste der möglichen Blockaden vor mir 
