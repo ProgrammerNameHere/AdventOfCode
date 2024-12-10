@@ -1,5 +1,4 @@
 import time
-
 puzzle_file = open('test_input.txt', 'r')
 puzzle_input = puzzle_file.read().splitlines()
 #print(puzzle_input)
@@ -73,11 +72,42 @@ def is_blocked(pos, block_direction):
 
 # check if an obstruction put in front of the guard right now would create a loop
 def can_loop(guard, loop_direction):
-    temp_direction = change_direction(loop_direction)
-    #print({temp_guard_with_direction,})
-    if  {(guard, temp_direction),} <= spots_visited_with_direction or take_step(guard, loop_direction) == guard_start:
-        return True
-    return False    
+    loop_spots = set()
+    loop_spots_with_direction = set()
+    temp_guard = guard
+    starting_position_with_direction = (temp_guard, loop_direction)
+    possible_obstruction = take_step(temp_guard, direction)
+    temp_direction = change_direction(direction)
+    if set(possible_obstruction).isdisjoint(possible_obstructions):
+        while True:
+            # add the current position to the spots visited
+            # print(guard)
+            # print(direction)
+            # x_current, y_current = guard
+            # vision_range = 1
+            # for y in range(y_current - vision_range//2, y_current + vision_range//2 + 1):
+            #     print(puzzle_input[y][x_current - vision_range//2:x_current + vision_range//2 + 1])
+            # time.sleep(.2)
+            loop_spots.add((temp_guard),)
+            loop_spots_with_direction.add((temp_guard,temp_direction),)
+            if is_leaving_the_room(temp_guard, temp_direction):
+                break
+            else:
+                if is_blocked(temp_guard, temp_direction):
+                    temp_direction = change_direction(temp_direction)
+                    # print('Obstacle Detected')
+
+                    continue
+                else:
+                    temp_guard = take_step(temp_guard,temp_direction)
+                    continue
+        if set(starting_position_with_direction,) <= loop_spots_with_direction:
+            possible_obstructions.add(possible_obstruction)
+            return True
+        else:
+            return False
+
+
 
 # include the starting position of the guard in the set of obstructions
 # because I am not allowed to put an obstruction there, i want to rule out
@@ -103,13 +133,8 @@ while True:
 
             continue
         else:
-            if can_loop(guard, direction):
-                # print('Loop Detected')
-                temp_guard = take_step(guard, direction)
-                possible_obstructions.add(temp_guard,)
-            # print('Stepping Forward')
+            can_loop(guard, direction)
             guard = take_step(guard,direction)
-            
             continue
 
 print(f'The Guard visited {len(spots_visited)} spots in the room.')
