@@ -8,5 +8,5 @@ Website to solve yourself: [adventofcode.com](https://adventofcode.com)
 
 If you have any questions (because of my bad commentary or anything else) fell free to reach out to me :-)
 
-Happy Coding
+Happy Coding <br />
 Moses
